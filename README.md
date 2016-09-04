@@ -7,7 +7,7 @@ Simple life simulation presented in ANSI characters
 Written in QBASIC4.5 in DOSBOX
 
 
-## Alpha3
+# Alpha3
 
 ![alpha2](https://i.imgur.com/82p5OOV.png)
 ![alpha3](https://i.imgur.com/B7jrCUY.png)
@@ -51,3 +51,18 @@ I'm still tweaking them but only a little bit. Those valueas are in percent of 1
 ## Video
 
 - [youtube.com/watch?v=UOPRxfLUM1I](https://www.youtube.com/watch?v=UOPRxfLUM1I)
+
+# Alpha4
+
+![alpha4](https://i.imgur.com/dX7TJpm.png)
+
+Take attention to the green worker in the middle. That is you - player. WIP.
+
+
+# How to run?
+
+## Arch Linux
+
+- sudo pacman -S dosemu
+- dosemu ACS.EXE
+
