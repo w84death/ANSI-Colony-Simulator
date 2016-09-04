@@ -1,4 +1,3 @@
-DECLARE SUB DEBUG ()
 REM
 REM  P1X ANSI COLONY SIMULATOR
 REM
@@ -8,6 +7,7 @@ REM  KRZYSZTOF JANKOWSKI
 REM
 REM
 
+DECLARE SUB DEBUG ()
 DECLARE SUB READDATA ()
 DECLARE SUB INITUNIVERSE ()
 DECLARE SUB SIMULATE ()
@@ -23,24 +23,33 @@ CELLEMPTY% = 0
 CELLTYPE1% = 176
 CELLTYPE2% = 177
 CELLTYPE3% = 178
-CELLWALL% = 1
+CELLWALL% = 219
 CELLPIPE% = 186
-BUILDCHANCE% = 50
-LIFECHANCE% = 3
+BUILDCHANCE% = 30
+LIFECHANCE% = 2
+DESTROYCHANCE% = 15
+DECRASECHANCE% = 30
+INCRESECHANCE% = 30
+REGENERATECHANCE% = 50
+
+DATA 0,0,0,0,0,0,6,0,0,0,1,0,4
+DATA 0,9,0,0,0,5,0,2,0,10,0
+DATA 3,0,7,0,8,11,-1
+
+DATA 254,179,196,191,218,217,192
+DATA 180,194,195,193,197,-1
+
 
 DIM SHARED UNIVERSE(UNISIZEX%, UNISIZEY%) AS INTEGER
 DIM SHARED PATH9MATRIX(31) AS INTEGER
 DIM SHARED PATH9ANSI(12) AS INTEGER
 
 CLS
-SCREEN 7
-COLOR 15, 0
+SCREEN 1
+COLOR 8, 15
 RANDOMIZE DNAHASH%
 CALL READDATA
-CALL DEBUG
 CALL INITUNIVERSE
-REM CALL MENU
-CLS
 
 DEF FNCOUNTCELLS (X%, Y%)
   B% = 0
@@ -74,11 +83,6 @@ DO
   CALL SIMULATE
 LOOP UNTIL INKEY$ <> ""
 
-DATA 0,0,1,0,2,0,6,0,1,0,1,0,4
-DATA 0,9,0,2,0,5,0,2,0,10,0
-DATA 3,0,7,0,8,11,-1
-DATA 0,186,205,200,187,201,
-DATA 188,185,202,203,204,206,-1
 
 SUB DEBUG
 PRINT "DEBUG"
@@ -105,7 +109,7 @@ SUB INITUNIVERSE
                 FOR X = 0 TO UNISIZEX% STEP 1
                         NEWCELL% = 0
                         IF INT(RND * 100) < LIFECHANCE% THEN
-                                NEWCELL% = 1 + INT(RND * 9)
+                                NEWCELL% = 5
                         END IF
                         UNIVERSE(X, Y) = NEWCELL%
                 NEXT X
@@ -194,7 +198,7 @@ SUB RENDER
           END IF
         NEXT Y
 
-        PRINT "UNIVERSE TIME:"; UNITIME%; "POPULATION:"; POPULATION%;
+        PRINT "T:"; UNITIME%;
 END SUB
 
 SUB SIMULATE
@@ -203,7 +207,10 @@ SUB SIMULATE
         SHARED UNISIZEX%
         SHARED UNISIZEY%
         SHARED BUILDCHANCE%
-        C% = 0
+        SHARED DESTROYCHANCE%
+        SHARED INCRESECHANCE%
+        SHARED DECRESECHANCE%
+        SHARED REGENERATECHANCE%
 
         FOR X% = 0 TO UNISIZEX% STEP 1
           FOR Y% = 0 TO UNISIZEY% STEP 1
@@ -213,7 +220,7 @@ SUB SIMULATE
                   NX% = 0
                   NY% = 0
                   CELLAFTER% = 0
-                  C% = C% + 1
+         
                   IF R% = 0 AND Y% > 0 THEN
                         NY% = -1
                   END IF
@@ -227,20 +234,45 @@ SUB SIMULATE
                         NX% = -1
                   END IF
                
+                  E% = 0
                   IF UNIVERSE(X% + NX%, Y% + NY%) = 0 THEN
                         IF INT(RND * 100) < BUILDCHANCE% THEN
                                 CELLAFTER% = 11
+                                
+                                IF INT(RND * 100) < INCRESECHANCE% THEN
+                                        E% = 1
+                                END IF
                         END IF
+
                         UNIVERSE(X%, Y%) = CELLAFTER%
-                        UNIVERSE(X% + NX%, Y% + NY%) = T%
+                        UNIVERSE(X% + NX%, Y% + NY%) = T% + E%
                   END IF
+
+                 
+                  IF UNIVERSE(X% + NX%, Y% + NY%) = 11 THEN
+                        IF INT(RND * 100) < DESTROYCHANCE% THEN
+                                IF INT(RND * 100) < DECRESECHANCE% THEN
+                                        E% = 1
+                                END IF
+                               
+                                UNIVERSE(X%, Y%) = T% - E%
+                                UNIVERSE(X% + NX%, Y% + NY%) = 0
+                        END IF
+                  END IF
+
+                  IF UNIVERSE(X% + NX%, Y% + NY%) = 10 THEN
+                        IF INT(RND * 100) < REGENERATECHANCE% THEN
+                                UNIVERSE(X%, Y%) = 5
+                                UNIVERSE(X% + NX%, Y% + NY%) = 5
+                        END IF
+                  END IF
+                  
 
                 END IF
           NEXT Y%
         NEXT X%
 
         UNITIME% = UNITIME% + 1
-        POPULATION% = C%
 
 END SUB
 

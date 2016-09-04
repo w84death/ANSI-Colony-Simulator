@@ -14,39 +14,35 @@ magic_array:
 0,7,0,8,0,11]
 
 
-sprites:
+sprites
+ansi_array:
  0
- 1 -
- 2 |
- 3 up left
- 4 left downa
- 5 up right
- 6 down right
- 7 up -
- 8 left |
- 9 down -
-10 right |
+ 1 |
+ 2 -
+ 3 left down
+ 4 right down
+ 5 left up
+ 6 righ up
+ 7 left |
+ 8 down -
+ 9 right |
+10 up -
 11 +
 
- 0 0
+ 0 254
+ 1 179
+ 2 196
+ 3 191
+ 4 218
+ 5 217
+ 6 192
+ 7 180
+ 8 194
+ 9 195
+10 193
+11 197
 
- 1 186
- 2 205
- 3 188
- 4 187
- 5 201
- 6 200
- 7 202
- 8 185
- 9 203
-10 204
-11 206
 
-
-ANSI_array:
-[0,205,186,188,187,
-200,201,202,185,203,
-204,206]
 
 
 sprite = ansi_array[magic_array[binary_neighbours]]
