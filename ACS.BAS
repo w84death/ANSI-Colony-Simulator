@@ -17,18 +17,19 @@ DECLARE SUB RENDER ()
 DNAHASH% = 128
 UNITIME% = 0
 POPULATION% = 0
-UNISIZEX% = 39
-UNISIZEY% = 22
+UNISIZEX% = 12
+UNISIZEY% = 12
 CELLEMPTY% = 0
 CELLTYPE1% = 176
 CELLTYPE2% = 177
 CELLTYPE3% = 178
 CELLWALL% = 219
 CELLPIPE% = 186
-BUILDCHANCE% = 30
-LIFECHANCE% = 2
-DESTROYCHANCE% = 15
-DECRASECHANCE% = 30
+
+LIFECHANCE% = 5
+BUILDCHANCE% = 20
+DESTROYCHANCE% = 20
+DECRESECHANCE% = 30
 INCRESECHANCE% = 30
 REGENERATECHANCE% = 50
 
@@ -197,7 +198,12 @@ SUB RENDER
           END IF
         NEXT Y
 
-        PRINT "T:"; UNITIME%;
+        PRINT ""
+        PRINT ""
+        PRINT "VER.0.3 ";
+        PRINT ", SIZE:"; UNISIZEX%; "X"; UNISIZEY%;
+        PRINT ", CYCLES:"; UNITIME%;
+        
 END SUB
 
 SUB SIMULATE
@@ -235,7 +241,8 @@ SUB SIMULATE
                
                   E% = 0
                   IF UNIVERSE(X% + NX%, Y% + NY%) = 0 THEN
-                        IF INT(RND * 100) < BUILDCHANCE% THEN
+                        E% = 0
+                        IF INT(RND * 100) < BUILDCHANCE% + T% THEN
                                 CELLAFTER% = 11
                                 
                                 IF INT(RND * 100) < INCRESECHANCE% THEN
@@ -249,7 +256,8 @@ SUB SIMULATE
 
                  
                   IF UNIVERSE(X% + NX%, Y% + NY%) = 11 THEN
-                        IF INT(RND * 100) < DESTROYCHANCE% THEN
+                        E% = 0
+                        IF INT(RND * 100) < DESTROYCHANCE% - T% THEN
                                 IF INT(RND * 100) < DECRESECHANCE% THEN
                                         E% = 1
                                 END IF
