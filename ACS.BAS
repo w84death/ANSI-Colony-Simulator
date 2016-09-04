@@ -17,8 +17,8 @@ DECLARE SUB RENDER ()
 DNAHASH% = 128
 UNITIME% = 0
 POPULATION% = 0
-UNISIZEX% = 12
-UNISIZEY% = 12
+UNISIZEX% = 39
+UNISIZEY% = 21
 CELLEMPTY% = 0
 CELLTYPE1% = 176
 CELLTYPE2% = 177
@@ -26,7 +26,7 @@ CELLTYPE3% = 178
 CELLWALL% = 219
 CELLPIPE% = 186
 
-LIFECHANCE% = 5
+LIFECHANCE% = 1
 BUILDCHANCE% = 20
 DESTROYCHANCE% = 20
 DECRESECHANCE% = 30
@@ -46,8 +46,8 @@ DIM SHARED PATH9MATRIX(31) AS INTEGER
 DIM SHARED PATH9ANSI(12) AS INTEGER
 
 CLS
-SCREEN 7
-COLOR 8, 15
+SCREEN 1
+COLOR 0, 6
 RANDOMIZE DNAHASH%
 CALL READDATA
 CALL INITUNIVERSE
@@ -108,7 +108,7 @@ SUB INITUNIVERSE
         FOR Y = 0 TO UNISIZEY% STEP 1
                 FOR X = 0 TO UNISIZEX% STEP 1
                         NEWCELL% = 0
-                        IF INT(RND * 100) < LIFECHANCE% THEN
+                        IF INT(RND * 1000) < LIFECHANCE% THEN
                                 NEWCELL% = 5
                         END IF
                         UNIVERSE(X, Y) = NEWCELL%
@@ -221,7 +221,7 @@ SUB SIMULATE
           FOR Y% = 0 TO UNISIZEY% STEP 1
                 T% = UNIVERSE(X%, Y%)
                 IF T% > 0 AND T% < 10 THEN
-                  R% = INT(RND * 6)
+                  R% = INT(RND * 4)
                   NX% = 0
                   NY% = 0
                   CELLAFTER% = 0
