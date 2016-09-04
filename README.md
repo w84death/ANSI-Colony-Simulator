@@ -47,3 +47,7 @@ I'm still tweaking them but only a little bit. Those valueas are in percent of 1
 ## Dark Mode
 
 ![dark mode](https://i.imgur.com/rd741i2.png)
+
+## Video
+
+- [youtube.com/watch?v=UOPRxfLUM1I](https://www.youtube.com/watch?v=UOPRxfLUM1I)
