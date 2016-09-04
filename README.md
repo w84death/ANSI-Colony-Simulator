@@ -7,9 +7,10 @@ Simple life simulation presented in ANSI characters
 Written in QBASIC4.5 in DOSBOX
 
 
-## Alpha2
+## Alpha3
 
-![alpha2](https://i.imgur.com/UhAQXdN.png)
+![alpha2](https://i.imgur.com/82p5OOV.png)
+![alpha3](https://i.imgur.com/B7jrCUY.png)
 
 First stage of simulation
 
