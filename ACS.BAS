@@ -1,37 +1,50 @@
+DECLARE SUB KBR ()
+DECLARE SUB READDATA ()
+DECLARE SUB INITUNIVERSE ()
+DECLARE SUB SIMULATE ()
+DECLARE SUB RENDER ()
 REM
 REM  P1X ANSI COLONY SIMULATOR
 REM
-REM  VERSION ALPHA 03
+REM  VERSION ALPHA-4
 REM
 REM  KRZYSZTOF JANKOWSKI
 REM
 REM
 
-DECLARE SUB DEBUG ()
-DECLARE SUB READDATA ()
-DECLARE SUB INITUNIVERSE ()
-DECLARE SUB SIMULATE ()
-DECLARE SUB MENU ()
-DECLARE SUB RENDER ()
+SCREEN 9
+WIDTH 80, 43
+CLS
 
-DNAHASH% = 128
+APPVER$ = "ALPHA-4"
+DNAHASH% = TIME
+RANDOMIZE DNAHASH%
+
 UNITIME% = 0
 POPULATION% = 0
-UNISIZEX% = 39
-UNISIZEY% = 21
+UNISIZEX% = 80
+UNISIZEY% = 40
 CELLEMPTY% = 0
 CELLTYPE1% = 176
 CELLTYPE2% = 177
 CELLTYPE3% = 178
-CELLWALL% = 219
-CELLPIPE% = 186
+CELLTYPE4% = 219
 
-LIFECHANCE% = 1
+CELLCOLOR% = 15
+WEBCOLOR% = 1
+BGCOLOR% = 15
+GUICOLOR% = 5
+PLAYERCOLOR% = 3
+
+LIFECHANCE% = 5
 BUILDCHANCE% = 20
 DESTROYCHANCE% = 20
 DECRESECHANCE% = 30
 INCRESECHANCE% = 30
 REGENERATECHANCE% = 50
+
+PLAYERX% = UNISIZEX% / 2
+PLAYERY% = UNISIZEY% / 2
 
 DATA 0,0,0,0,0,0,6,0,0,0,1,0,4
 DATA 0,9,0,0,0,5,0,2,0,10,0
@@ -40,15 +53,10 @@ DATA 3,0,7,0,8,0,11,-1
 DATA 254,179,196,191,218,217,192
 DATA 180,194,195,193,197,-1
 
-
 DIM SHARED UNIVERSE(UNISIZEX%, UNISIZEY%) AS INTEGER
 DIM SHARED PATH9MATRIX(31) AS INTEGER
 DIM SHARED PATH9ANSI(12) AS INTEGER
 
-CLS
-SCREEN 1
-COLOR 0, 6
-RANDOMIZE DNAHASH%
 CALL READDATA
 CALL INITUNIVERSE
 
@@ -79,10 +87,13 @@ DEF FNCOUNTCELLS (X%, Y%)
   FNCOUNTCELLS = B%
 END DEF
 
+
 DO
+  K$ = INKEY$
+  CALL KBR
   CALL RENDER
   CALL SIMULATE
-LOOP UNTIL INKEY$ <> ""
+LOOP UNTIL K$ = "Q"
 
 SUB DEBUG
 PRINT "DEBUG"
@@ -105,16 +116,39 @@ SUB INITUNIVERSE
         SHARED UNISIZEX%
         SHARED UNISIZEY%
         SHARED LIFECHANCE%
-        FOR Y = 0 TO UNISIZEY% STEP 1
-                FOR X = 0 TO UNISIZEX% STEP 1
+        SHARED PLAYERX%
+        SHARED PLAYERY%
+
+        FOR Y% = 0 TO UNISIZEY% STEP 1
+                FOR X% = 0 TO UNISIZEX% STEP 1
                         NEWCELL% = 0
                         IF INT(RND * 1000) < LIFECHANCE% THEN
                                 NEWCELL% = 5
                         END IF
-                        UNIVERSE(X, Y) = NEWCELL%
-                NEXT X
-        NEXT Y
+                        IF X% = PLAYERX% AND Y% = PLAYERY% THEN
+                                NEWCELL% = 5
+                        END IF
+                        UNIVERSE(X%, Y%) = NEWCELL%
+                NEXT X%
+        NEXT Y%
+END SUB
 
+SUB KBR
+        SHARED PLAYERX%
+        SHARED PLAYERY%
+        SHARED K$
+        
+        OLDX% = PLAYERX%
+        OLDY% = PLAYERY%
+        T% = UNIVERSE(PLAYERX%, PLAYERY%)
+
+        IF K$ = "W" THEN PLAYERY% = PLAYERY% - 1
+        IF K$ = "S" THEN PLAYERY% = PLAYERY% + 1
+        IF K$ = "A" THEN PLAYERX% = PLAYERX% - 1
+        IF K$ = "D" THEN PLAYERX% = PLAYERX% + 1
+       
+        UNIVERSE(OLDX%, OLDY%) = 0
+        UNIVERSE(PLAYERX%, PLAYERY%) = T%
 END SUB
 
 SUB MENU
@@ -154,6 +188,7 @@ LOOP
 END SUB
 
 SUB RENDER
+        SHARED APPVER$
         SHARED UNITIME%
         SHARED POPULATION%
         SHARED UNISIZEX%
@@ -162,15 +197,30 @@ SUB RENDER
         SHARED CELLTYPE1%
         SHARED CELLTYPE2%
         SHARED CELLTYPE3%
-        SHARED CELLWALL%
-        
+        SHARED CELLTYPE4%
+        SHARED CELLCOLOR%
+        SHARED WEBCOLOR%
+        SHARED BGCOLOR%
+        SHARED GUICOLOR%
+        SHARED PLAYERCOLOR%
+        SHARED PLAYERX%
+        SHARED PLAYERY%
+
+
         LOCATE 1, 1
-        FOR Y = 0 TO UNISIZEY% STEP 1
-          FOR X = 0 TO UNISIZEX% STEP 1
+        FOR Y = 0 TO UNISIZEY% - 1 STEP 1
+          FOR X = 0 TO UNISIZEX% - 1 STEP 1
             CELL = UNIVERSE(X, Y)
             IF CELL = 0 THEN
                 PRINT CHR$(CELLEMPTY%);
             END IF
+           
+            IF X = PLAYERX% AND Y = PLAYERY% THEN
+                COLOR PLAYERCOLOR%, BGCOLOR%
+            ELSE
+                COLOR CELLCOLOR%, BGCOLOR%
+            END IF
+           
             IF CELL > 0 AND CELL <= 3 THEN
                 PRINT CHR$(CELLTYPE1%);
             END IF
@@ -183,26 +233,29 @@ SUB RENDER
             END IF
 
             IF CELL = 10 THEN
-                PRINT CHR$(CELLWALL%);
+                PRINT CHR$(CELLTYPE4%);
             END IF
+            
+            COLOR WEBCOLOR%, BGCOLOR%
 
             IF CELL = 11 THEN
                 PRINT CHR$(PATH9ANSI(PATH9MATRIX(FNCOUNTCELLS(X, Y))));
                 REM PRINT FNCOUNTCELLS(X, Y)
-
             END IF
 
           NEXT X
-          IF Y < UNISIZEY% THEN
+          IF Y < UNISIZEY% - 1 THEN
                 PRINT ""
           END IF
         NEXT Y
 
+        COLOR GUICOLOR%, BGCOLOR%
+
         PRINT ""
         PRINT ""
-        PRINT "VER.0.3 ";
-        PRINT ", SIZE:"; UNISIZEX%; "X"; UNISIZEY%;
-        PRINT ", CYCLES:"; UNITIME%;
+        PRINT APPVER$,
+        PRINT "SIZE:"; UNISIZEX%; "X"; UNISIZEY%;
+        PRINT ", CYCLES:"; UNITIME%, "[Q]UIT";
         
 END SUB
 
@@ -216,9 +269,12 @@ SUB SIMULATE
         SHARED INCRESECHANCE%
         SHARED DECRESECHANCE%
         SHARED REGENERATECHANCE%
+        SHARED PLAYERX%
+        SHARED PLAYERY%
 
         FOR X% = 0 TO UNISIZEX% STEP 1
           FOR Y% = 0 TO UNISIZEY% STEP 1
+                IF X% = PLAYERX% AND Y% = PLAYERY% THEN GOTO SKIPME
                 T% = UNIVERSE(X%, Y%)
                 IF T% > 0 AND T% < 10 THEN
                   R% = INT(RND * 4)
@@ -273,9 +329,9 @@ SUB SIMULATE
                                 UNIVERSE(X% + NX%, Y% + NY%) = 5
                         END IF
                   END IF
-                  
-
+                 
                 END IF
+SKIPME:
           NEXT Y%
         NEXT X%
 
