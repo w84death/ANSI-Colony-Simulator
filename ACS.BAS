@@ -1,3 +1,4 @@
+DECLARE SUB GUI ()
 DECLARE SUB KBR ()
 DECLARE SUB READDATA ()
 DECLARE SUB INITUNIVERSE ()
@@ -6,7 +7,7 @@ DECLARE SUB RENDER ()
 REM
 REM  P1X ANSI COLONY SIMULATOR
 REM
-REM  VERSION ALPHA-4
+REM  VERSION ALPHA-5
 REM
 REM  KRZYSZTOF JANKOWSKI
 REM
@@ -16,14 +17,18 @@ SCREEN 9
 WIDTH 80, 43
 CLS
 
-APPVER$ = "ALPHA-4"
+APPVER$ = "ALPHA-5"
 DNAHASH% = TIME
 RANDOMIZE DNAHASH%
 
 UNITIME% = 0
 POPULATION% = 0
-UNISIZEX% = 80
-UNISIZEY% = 40
+UNISIZEX% = 128
+UNISIZEY% = 128
+VPSIZEX% = 32
+VPSIZEY% = 32
+VPPOSX% = 0
+VPPOSY% = 0
 CELLEMPTY% = 0
 CELLTYPE1% = 176
 CELLTYPE2% = 177
@@ -32,8 +37,8 @@ CELLTYPE4% = 219
 
 CELLCOLOR% = 15
 WEBCOLOR% = 1
-BGCOLOR% = 15
-GUICOLOR% = 5
+BGCOLOR% = 17
+GUICOLOR% = 1
 PLAYERCOLOR% = 3
 
 LIFECHANCE% = 5
@@ -43,8 +48,8 @@ DECRESECHANCE% = 30
 INCRESECHANCE% = 30
 REGENERATECHANCE% = 50
 
-PLAYERX% = UNISIZEX% / 2
-PLAYERY% = UNISIZEY% / 2
+PLAYERX% = 12 'UNISIZEX% / 2
+PLAYERY% = 12 'UNISIZEY% / 2
 
 DATA 0,0,0,0,0,0,6,0,0,0,1,0,4
 DATA 0,9,0,0,0,5,0,2,0,10,0
@@ -93,7 +98,7 @@ DO
   CALL KBR
   CALL RENDER
   CALL SIMULATE
-LOOP UNTIL K$ = "Q"
+LOOP UNTIL K$ = "Q" OR K$ = "q"
 
 SUB DEBUG
 PRINT "DEBUG"
@@ -110,6 +115,29 @@ NEXT J
 PRINT ""
 PRINT "CONTINUE"
 INPUT WAIT$
+END SUB
+
+SUB GUI
+        SHARED APPVER$
+        SHARED UNITIME%
+        SHARED POPULATION%
+        SHARED UNISIZEX%
+        SHARED UNISIZEY%
+        SHARED BGCOLOR%
+        SHARED GUICOLOR%
+        
+        SHARED PLAYERX%
+        SHARED PLAYERY%
+       
+        COLOR GUICOLOR%, BGCOLOR%
+       
+        PRINT ""
+        PRINT ""
+        PRINT APPVER$
+        PRINT "WORLD:"; UNISIZEX%; "x"; UNISIZEY%
+        PRINT "PLAYER:"; PLAYERX%; "x"; PLAYERY%
+        PRINT "TIME:"; UNITIME%, "[Q]UIT";
+
 END SUB
 
 SUB INITUNIVERSE
@@ -136,17 +164,32 @@ END SUB
 SUB KBR
         SHARED PLAYERX%
         SHARED PLAYERY%
+        SHARED UNISIZEX%
+        SHARED UNISIZEY%
+        SHARED VPPOSX%
+        SHARED VPPOSY%
         SHARED K$
         
         OLDX% = PLAYERX%
         OLDY% = PLAYERY%
         T% = UNIVERSE(PLAYERX%, PLAYERY%)
 
-        IF K$ = "W" THEN PLAYERY% = PLAYERY% - 1
-        IF K$ = "S" THEN PLAYERY% = PLAYERY% + 1
-        IF K$ = "A" THEN PLAYERX% = PLAYERX% - 1
-        IF K$ = "D" THEN PLAYERX% = PLAYERX% + 1
-       
+        IF K$ = "W" OR K$ = "w" THEN
+                PLAYERY% = PLAYERY% - 1
+                VPPOSY% = VPPOSY% - 1
+        END IF
+        IF K$ = "S" OR K$ = "s" THEN
+                PLAYERY% = PLAYERY% + 1
+                VPPOSY% = VPPOSY% + 1
+        END IF
+        IF K$ = "A" OR K$ = "a" THEN
+                PLAYERX% = PLAYERX% - 1
+                VPPOSX% = VPPOSX% - 1
+        END IF
+        IF K$ = "D" OR K$ = "d" THEN
+                PLAYERX% = PLAYERX% + 1
+                VPPOSX% = VPPOSX% + 1
+        END IF
         UNIVERSE(OLDX%, OLDY%) = 0
         UNIVERSE(PLAYERX%, PLAYERY%) = T%
 END SUB
@@ -188,11 +231,14 @@ LOOP
 END SUB
 
 SUB RENDER
-        SHARED APPVER$
         SHARED UNITIME%
         SHARED POPULATION%
         SHARED UNISIZEX%
         SHARED UNISIZEY%
+        SHARED VPSIZEX%
+        SHARED VPSIZEY%
+        SHARED VPPOSX%
+        SHARED VPPOSY%
         SHARED CELLEMPTY%
         SHARED CELLTYPE1%
         SHARED CELLTYPE2%
@@ -201,16 +247,19 @@ SUB RENDER
         SHARED CELLCOLOR%
         SHARED WEBCOLOR%
         SHARED BGCOLOR%
-        SHARED GUICOLOR%
         SHARED PLAYERCOLOR%
         SHARED PLAYERX%
         SHARED PLAYERY%
 
 
         LOCATE 1, 1
-        FOR Y = 0 TO UNISIZEY% - 1 STEP 1
-          FOR X = 0 TO UNISIZEX% - 1 STEP 1
+        FOR VPY% = 0 TO VPSIZEY% - 1 STEP 1
+          FOR VPX% = 0 TO VPSIZEX% - 1 STEP 1
+            X = VPX% + VPPOSX%
+            Y = VPY% + VPPOSY%
+
             CELL = UNIVERSE(X, Y)
+           
             IF CELL = 0 THEN
                 PRINT CHR$(CELLEMPTY%);
             END IF
@@ -243,19 +292,14 @@ SUB RENDER
                 REM PRINT FNCOUNTCELLS(X, Y)
             END IF
 
-          NEXT X
-          IF Y < UNISIZEY% - 1 THEN
+          NEXT VPX%
+          IF VPY% < VPSIZEY% - 1 THEN
                 PRINT ""
           END IF
-        NEXT Y
+        NEXT VPY%
 
-        COLOR GUICOLOR%, BGCOLOR%
 
-        PRINT ""
-        PRINT ""
-        PRINT APPVER$,
-        PRINT "SIZE:"; UNISIZEX%; "X"; UNISIZEY%;
-        PRINT ", CYCLES:"; UNITIME%, "[Q]UIT";
+        CALL GUI
         
 END SUB
 
