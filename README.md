@@ -27,7 +27,7 @@ Levels
 - worker that gets below level 1 dies forever
 
 
-## Example
+## Example (alpha-2)
 
 ![life cycle](https://i.imgur.com/wWMDNut.png)
 
@@ -44,20 +44,23 @@ I'm still tweaking them but only a little bit. Those valueas are in percent of 1
 - INCRESE CHANCE = 30
 - REGENERATE CHANCE = 50
 
-## Dark Mode
+## Videos
 
-![dark mode](https://i.imgur.com/rd741i2.png)
+- [alpha-4](https://www.youtube.com/watch?v=UOPRxfLUM1I)
+- [alpha-5](https://youtu.be/CARtQnADWtM)
 
-## Video
-
-- [youtube.com/watch?v=UOPRxfLUM1I](https://www.youtube.com/watch?v=UOPRxfLUM1I)
-
-# Alpha4
+# Alpha-4
 
 ![alpha4](https://i.imgur.com/dX7TJpm.png)
 
 Take attention to the green worker in the middle. That is you - player. WIP.
 
+
+# Alpha-5
+
+![alpha5](http://i.imgur.com/v8P3nb4.png)
+
+Added movement of the player. Big (128x128) maps. Rendering of viewport for player. I'm thinking of adding a second player and screen.
 
 # How to run?
 
